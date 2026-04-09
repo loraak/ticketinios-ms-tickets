@@ -1,0 +1,130 @@
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Ticket {
+  id                                     String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  grupoId                                String?    @default(dbgenerated("gen_random_uuid()")) @map("grupo_id") @db.Uuid
+  autorId                                String?    @default(dbgenerated("gen_random_uuid()")) @map("autor_id") @db.Uuid
+  estadoId                               String?    @default(dbgenerated("gen_random_uuid()")) @map("estado_id") @db.Uuid
+  asignadoId                             String?    @default(dbgenerated("gen_random_uuid()")) @map("asignado_id") @db.Uuid
+  titulo                                 String?    @db.VarChar
+  descripcion                            String?
+  fechaFinal                             DateTime?  @map("fecha_final") @db.Timestamptz(6)
+  creadoEn                               DateTime   @default(now()) @map("creado_en") @db.Timestamptz(6)
+  prioridadId                            String?    @map("prioridad_id") @db.Uuid
+  usuarios_tickets_asignado_idTousuarios usuarios?  @relation("tickets_asignado_idTousuarios", fields: [asignadoId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  usuarios_tickets_autor_idTousuarios    usuarios?  @relation("tickets_autor_idTousuarios", fields: [autorId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  estado                                 Estado?    @relation(fields: [estadoId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  grupos                                 grupos?    @relation(fields: [grupoId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  prioridad                              Prioridad? @relation(fields: [prioridadId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("tickets")
+}
+
+model Estado {
+  id      String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nombre  String   @db.VarChar
+  tickets Ticket[]
+
+  @@map("estados")
+}
+
+model Prioridad {
+  id      String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nombre  String?  @db.VarChar
+  tickets Ticket[]
+
+  @@map("prioridades")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model grupo_miembros {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  usuario_id String    @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  grupo_id   String?   @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  union_en   DateTime? @default(now()) @db.Timestamptz(6)
+  grupos     grupos?   @relation(fields: [grupo_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  usuarios   usuarios  @relation(fields: [usuario_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model grupo_usuario_permisos {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  grupo_id   String?   @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  usuario_id String?   @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  permiso_id String?   @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  creado_en  DateTime  @default(now()) @db.Timestamptz(6)
+  grupos     grupos?   @relation(fields: [grupo_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  permisos   permisos? @relation(fields: [permiso_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  usuarios   usuarios? @relation(fields: [usuario_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model grupos {
+  id                     String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nombre                 String?                  @db.VarChar(150)
+  descripcion            String?
+  creador_id             String?                  @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  creado_en              DateTime                 @default(now()) @db.Timestamptz(6)
+  activo                 Boolean?                 @default(true)
+  creador_nombre         String?                  @db.VarChar(200)
+  grupo_miembros         grupo_miembros[]
+  grupo_usuario_permisos grupo_usuario_permisos[]
+  usuarios               usuarios?                @relation(fields: [creador_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  tickets                Ticket[]
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model permisos {
+  id                     String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nombre                 String?                  @db.VarChar(100)
+  creado_en              DateTime?                @db.Timestamp(6)
+  descripcion            String?
+  grupo_usuario_permisos grupo_usuario_permisos[]
+  usuario_permisos       usuario_permisos[]
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model usuario_grupos {
+  id         String    @id @db.Uuid
+  grupo_id   String    @db.Uuid
+  union_en   DateTime? @db.Timestamp(6)
+  usuario_id String    @db.Uuid
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model usuario_permisos {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  usuario_id  String    @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  permiso_id  String    @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  asignado_en DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  permisos    permisos  @relation(fields: [permiso_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  usuarios    usuarios  @relation(fields: [usuario_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model usuarios {
+  id                                    String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nombre_completo                       String?                  @db.VarChar
+  telefono                              String?                  @db.VarChar
+  last_login                            DateTime?                @db.Timestamptz(6)
+  email                                 String?                  @db.VarChar
+  creado_en                             DateTime?                @db.Timestamptz(6)
+  password_hash                         String?                  @db.VarChar
+  direccion                             String?                  @db.VarChar
+  fecha_nacimiento                      DateTime?                @db.Date
+  usuario                               String?                  @db.VarChar
+  activo                                Boolean?                 @default(true)
+  grupo_miembros                        grupo_miembros[]
+  grupo_usuario_permisos                grupo_usuario_permisos[]
+  grupos                                grupos[]
+  tickets_tickets_asignado_idTousuarios Ticket[]                 @relation("tickets_asignado_idTousuarios")
+  tickets_tickets_autor_idTousuarios    Ticket[]                 @relation("tickets_autor_idTousuarios")
+  usuario_permisos                      usuario_permisos[]
+}
