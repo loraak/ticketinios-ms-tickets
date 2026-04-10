@@ -41,6 +41,21 @@ export async function ticketRoutes(app: FastifyInstance) {
         return reply.send({ statusCode: 200, intOpCode: 'MS-TICKETS-LIST-OK', data });
     });
 
+    app.get('/estados', async (request, reply) => {
+        const estados = await prisma.estado.findMany({
+            orderBy: { nombre: 'asc' }
+        });
+        return reply.send({ statusCode: 200, intOpCode: 'MS-TICKETS-ESTADOS-OK', data: estados });
+    });
+
+    
+    app.get('/prioridades', async (request, reply) => {
+        const prioridades = await prisma.prioridad.findMany({
+            orderBy: { nombre: 'asc' }
+        });
+        return reply.send({ statusCode: 200, intOpCode: 'MS-TICKETS-PRIORIDADES-OK', data: prioridades });
+    });
+
     // POST /api/tickets
     app.post('/', async (request, reply) => {
         const userId = (request as any).headers['x-user-id'];
@@ -56,7 +71,7 @@ export async function ticketRoutes(app: FastifyInstance) {
                 grupoId,
                 titulo,
                 descripcion,
-                autorId:     userId,  // ← viene del gateway
+                autorId:     userId,  
                 asignadoId,
                 estadoId,
                 prioridadId,
