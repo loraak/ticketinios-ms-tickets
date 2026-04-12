@@ -81,7 +81,7 @@ export async function ticketRoutes(app: FastifyInstance) {
             tickets.flatMap((t: any) => [t.autorId, t.asignadoId]).filter((id: string | null): id is string => !!id)
         );
 
-        const data = tickets.map(t => ({
+        const data = tickets.map((t: any) => ({
             id:          t.id,
             titulo:      t.titulo,
             descripcion: t.descripcion,
