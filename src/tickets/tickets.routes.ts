@@ -78,7 +78,7 @@ export async function ticketRoutes(app: FastifyInstance) {
         });
 
         const mapaUsuarios = await resolverNombres(
-            tickets.flatMap(t => [t.autorId, t.asignadoId]).filter((id): id is string => !!id)
+            tickets.flatMap((t: any) => [t.autorId, t.asignadoId]).filter((id: string | null): id is string => !!id)
         );
 
         const data = tickets.map(t => ({
@@ -122,7 +122,7 @@ export async function ticketRoutes(app: FastifyInstance) {
         });
 
         const mapaUsuarios = await resolverNombres(
-            comentarios.map(c => c.autor_id).filter(Boolean)
+            comentarios.map((c: any) => c.autor_id).filter(Boolean) as string[]
         );
 
         const data = comentarios.map(c => ({
