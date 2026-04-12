@@ -125,7 +125,7 @@ export async function ticketRoutes(app: FastifyInstance) {
             comentarios.map((c: any) => c.autor_id).filter(Boolean) as string[]
         );
 
-        const data = comentarios.map(c => ({
+        const data = comentarios.map((c: any) => ({
             id:       c.id,
             texto:    c.texto,
             autor:    mapaUsuarios[c.autor_id] ?? c.autor_id,
@@ -161,10 +161,10 @@ export async function ticketRoutes(app: FastifyInstance) {
         });
 
         const mapaUsuarios = await resolverNombres(
-            historial.map(h => h.usuario_id).filter(Boolean)
+            historial.map((h: any) => h.usuario_id).filter(Boolean) as string[]
         );
 
-        const data = historial.map(h => ({
+        const data = historial.map((h: any) => ({
             id:      h.id,
             accion:  h.accion,
             usuario: mapaUsuarios[h.usuario_id] ?? h.usuario_id,
@@ -307,7 +307,7 @@ export async function ticketRoutes(app: FastifyInstance) {
 
         await prisma.historial_tickets.create({
             data: { ticket_id: id, usuario_id: userId, accion: `Cambió estado a "${estado}"` }
-        }).catch(err => console.error('error historial:', err));
+        }).catch((err: any) => console.error('error historial:', err));
 
         return reply.send({
             statusCode: 200,
