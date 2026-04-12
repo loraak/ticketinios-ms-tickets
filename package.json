@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-      "dev": "tsx src/main.ts",
-      "start": "tsx src/main.ts"
+    "dev": "tsx src/main.ts",
+    "start": "tsx src/main.ts"
   },
   "keywords": [],
   "author": "",
@@ -13,6 +13,8 @@
   "type": "module",
   "dependencies": {
     "@fastify/cors": "^11.2.0",
+    "@fastify/swagger": "^9.7.0",
+    "@fastify/swagger-ui": "^5.2.5",
     "@neondatabase/serverless": "^1.0.2",
     "@prisma/adapter-neon": "^7.7.0",
     "@prisma/adapter-pg": "^7.7.0",
