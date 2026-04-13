@@ -1,5 +1,10 @@
+import { config } from 'dotenv'
+config()
+
 import { buildApp } from './app.js'
-import 'dotenv/config'
 
 const app = await buildApp()
-await app.listen({ port: Number(process.env.PORT) || 3003 })
+await app.listen({ 
+    port: Number(process.env.PORT) || 3003, 
+    host: '0.0.0.0' 
+})
