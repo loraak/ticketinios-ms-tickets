@@ -17,6 +17,7 @@ export async function buildApp() {
                 description: 'Microservicio de tickets'
             },
             servers: [
+                { url: 'https://ticketinios-apigateway-production.up.railway.app', description: 'API Gateway (producción)' },
                 { url: 'http://localhost:3000', description: 'API Gateway (local)' }
             ],
             components: {
@@ -40,13 +41,13 @@ export async function buildApp() {
     })
 
     app.addHook('onRequest', async (request, reply) => {
-        const ip = request.ip;
-        if (ip !== '127.0.0.1' && ip !== '::1') {
-            return reply.code(403).send({ message: 'Acceso denegado' });
+        const gatewayKey = request.headers['x-gateway-key']
+        if (gatewayKey !== process.env.GATEWAY_KEY) {
+            return reply.code(403).send({ message: 'Acceso denegado' })
         }
-    });
+    })
 
-    await app.register(ticketRoutes, { prefix: '/api/tickets' }) // ← solo una vez
+    await app.register(ticketRoutes, { prefix: '/api/tickets' }) 
 
     app.get('/health', async () => ({ status: 'ok', service: 'tickets' }))
 
