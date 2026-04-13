@@ -4,9 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-      "build": "prisma generate && tsc",
-      "start": "node dist/index.js",
-      "dev": "nodemon --exec tsx src/index.ts"
+      "build": "prisma generate && tsc --listEmittedFiles",
+      "start": "node dist/index.js"
   }, 
   "keywords": [],
   "author": "",
